@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Example</title>
+</head>
+<body>
+
+    <h1>WebSocket Example</h1>
+
+    <div>
+        <h2>Received Message:</h2>
+        <p id="receivedMessage"></p>
+
+        <!-- Add buttons for "Yes" and "No" options -->
+        <button id="yesBtn" style="display: none;">Yes</button>
+        <button id="noBtn" style="display: none;">No</button>
+
+        <!-- Add a container for additional options -->
+        <div id="optionsContainer" style="display: none;">
+            <button id="friendBtn">Friend</button>
+            <button id="familyBtn">Family</button>
+            <button id="coWorkerBtn">Co-worker</button>
+        </div>
+    </div>
+
+    <script>
+        const socket = new WebSocket('ws://localhost:8080/websocket-endpoint');
+
+        socket.onopen = (event) => {
+            console.log('WebSocket connection opened:', event);
+        };
+
+        socket.onmessage = (event) => {
+            const message = event.data;
+            console.log('Received message:', message);
+
+            // Display the message in the UI
+            document.getElementById('receivedMessage').innerText = message;
+
+            // Show buttons for "Yes" and "No" options
+            document.getElementById('yesBtn').style.display = 'block';
+            document.getElementById('noBtn').style.display = 'block';
+
+            // Hide additional options
+            document.getElementById('optionsContainer').style.display = 'none';
+        };
+
+        socket.onclose = (event) => {
+            console.log('WebSocket connection closed:', event);
+        };
+
+        // Function to send a message to the WebSocket with selected option
+        const sendOptionToWebSocket = (option) => {
+            const messageToSend = `Yes:${option}`;
+            socket.send(messageToSend);
+
+            // Hide the options container after sending the option
+            document.getElementById('optionsContainer').style.display = 'none';
+
+            // Hide "Yes" and "No" buttons after making a selection
+            document.getElementById('yesBtn').style.display = 'none';
+            document.getElementById('noBtn').style.display = 'none';
+
+            // Log the selection to the console
+            console.log(`Selected option: ${option}`);
+        };
+
+        // Attach functions to button click events
+        document.getElementById('yesBtn').addEventListener('click', () => {
+            document.getElementById('receivedMessage').innerText = 'Do you know him?';
+            document.getElementById('optionsContainer').style.display = 'block';
+
+            // Hide "Yes" and "No" buttons after clicking "Yes"
+            document.getElementById('yesBtn').style.display = 'none';
+            document.getElementById('noBtn').style.display = 'none';
+        });
+
+        document.getElementById('noBtn').addEventListener('click', () => {
+            document.getElementById('receivedMessage').innerText = '';
+            document.getElementById('optionsContainer').style.display = 'none';
+
+            // Hide "Yes" and "No" buttons after clicking "No"
+            document.getElementById('yesBtn').style.display = 'none';
+            document.getElementById('noBtn').style.display = 'none';
+        });
+
+        document.getElementById('friendBtn').addEventListener('click', () => sendOptionToWebSocket('Friend'));
+        document.getElementById('familyBtn').addEventListener('click', () => sendOptionToWebSocket('Family'));
+        document.getElementById('coWorkerBtn').addEventListener('click', () => sendOptionToWebSocket('Co-worker'));
+    </script>
+
+</body>
+</html>
